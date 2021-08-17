@@ -23,13 +23,17 @@ class MainFragment : Fragment() {
 
         binding.viewModel = viewModel
 
+        var adapter = AsteroidRecyclerAdapter()
+        binding.asteroidRecycler.adapter = adapter
+
         viewModel.asteroids.observe(viewLifecycleOwner, Observer {
             if(it.any()){
-                Toast.makeText(context, "The first asteroid retrieve is ${it[0].codename}", Toast.LENGTH_LONG).show()
+                adapter.submitList(it)
             }else{
                 Toast.makeText(context, "Unable to retrieve asteroids at this time.", Toast.LENGTH_SHORT).show()
             }
         })
+
 
         setHasOptionsMenu(true)
 
