@@ -1,8 +1,11 @@
 package com.udacity.asteroidradar.main
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.api.NasaApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import kotlinx.coroutines.launch
@@ -19,6 +22,10 @@ class MainViewModel : ViewModel() {
         const val API_KEY = "jXEDVjihcXsoNBIJKUF7w5Pm9MFri2faBV3m05a7"
     }
 
+    private val _asteroids = MutableLiveData<List<Asteroid>>()
+    val asteroids: LiveData<List<Asteroid>>
+    get() = _asteroids
+
     init {
 
         viewModelScope.launch {
@@ -30,14 +37,11 @@ class MainViewModel : ViewModel() {
 
             getAsteroids.enqueue(object: Callback<String> {
                 override fun onResponse(call: Call<String>, response: Response<String>) {
-
-                    val asteroids = parseAsteroidsJsonResult(JSONObject(response.body().toString()))
-                    val asteroid = asteroids[0]
-                    Log.i("MainViewModel", "id: ${asteroid.id}, name: ${asteroid.codename}")
+                    _asteroids.value = parseAsteroidsJsonResult(JSONObject(response.body().toString()))
                 }
 
                 override fun onFailure(call: Call<String>, t: Throwable) {
-                    Log.i("MainViewModel", t.message.toString())
+                    Log.i("MainViewModel", "Error at retrieving asteroids:\n${t.message.toString()}")
                 }
             })
         }
