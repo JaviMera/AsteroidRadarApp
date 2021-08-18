@@ -16,10 +16,7 @@ class AsteroidRecyclerAdapter() : ListAdapter<Asteroid, AsteroidRecyclerAdapter.
 
         fun bind(asteroid: Asteroid){
             binding.asteroid = asteroid
-            binding.asteroidIsHazardousImage.setImageResource(when(asteroid.isPotentiallyHazardous){
-                true -> R.drawable.ic_status_normal
-                else -> R.drawable.ic_status_potentially_hazardous
-            })
+            binding.executePendingBindings()
         }
     }
 

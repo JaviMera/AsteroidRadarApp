@@ -51,6 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
+            app:hazardousIcon="@{asteroid.potentiallyHazardous}"
             app:layout_constraintBottom_toBottomOf="@+id/asteroid_close_approach_date"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/asteroid_code_name"
