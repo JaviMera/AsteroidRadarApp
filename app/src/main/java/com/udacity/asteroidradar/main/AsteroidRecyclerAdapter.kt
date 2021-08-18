@@ -1,29 +1,22 @@
 package com.udacity.asteroidradar.main
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.R
-import org.w3c.dom.Text
+import com.udacity.asteroidradar.databinding.AsteroidListItemBinding
 
 class AsteroidRecyclerAdapter() : ListAdapter<Asteroid, AsteroidRecyclerAdapter.AsteroidViewHolder>(DiffCallback) {
 
-    class AsteroidViewHolder(asteroidView: View) : RecyclerView.ViewHolder(asteroidView){
-
-        val codeName: TextView = asteroidView.findViewById(R.id.asteroid_code_name)
-        val closeApproachDate: TextView = asteroidView.findViewById(R.id.asteroid_close_approach_date)
-        val hazardousImage:ImageView = asteroidView.findViewById(R.id.asteroid_is_hazardous_image)
+    class AsteroidViewHolder(private val binding: AsteroidListItemBinding) : RecyclerView.ViewHolder(binding.root){
 
         fun bind(asteroid: Asteroid){
-            codeName.text = asteroid.codename
-            closeApproachDate.text = asteroid.closeApproachDate
-            hazardousImage.setImageResource(when(asteroid.isPotentiallyHazardous){
+            binding.asteroid = asteroid
+            binding.asteroidIsHazardousImage.setImageResource(when(asteroid.isPotentiallyHazardous){
                 true -> R.drawable.ic_status_normal
                 else -> R.drawable.ic_status_potentially_hazardous
             })
@@ -32,8 +25,8 @@ class AsteroidRecyclerAdapter() : ListAdapter<Asteroid, AsteroidRecyclerAdapter.
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AsteroidViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(R.layout.asteroid_list_item, parent, false)
-        return AsteroidViewHolder(view)
+        val binding = DataBindingUtil.inflate(inflater, R.layout.asteroid_list_item, parent, false) as AsteroidListItemBinding
+        return AsteroidViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: AsteroidViewHolder, position: Int) {
