@@ -14,11 +14,6 @@ import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-enum class NasaApiStatus{
-    DONE,
-    ERROR
-}
-
 class MainViewModel : ViewModel() {
 
     companion object{
@@ -47,6 +42,7 @@ class MainViewModel : ViewModel() {
         )
 
         try{
+            _status.postValue(NasaApiStatus.LOADING)
             val result = asteroids.await()
             Timber.i(result)
             _asteroids.postValue(parseAsteroidsJsonResult(JSONObject(result)))
