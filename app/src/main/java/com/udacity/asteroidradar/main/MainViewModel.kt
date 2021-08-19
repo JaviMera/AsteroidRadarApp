@@ -1,6 +1,5 @@
 package com.udacity.asteroidradar.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,13 +9,15 @@ import com.udacity.asteroidradar.api.NasaApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.await
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+
+enum class NasaApiStatus{
+    DONE,
+    ERROR
+}
 
 class MainViewModel : ViewModel() {
 
@@ -28,21 +29,31 @@ class MainViewModel : ViewModel() {
     val asteroids: LiveData<List<Asteroid>>
     get() = _asteroids
 
+    private val _status = MutableLiveData<NasaApiStatus>()
+    val status: LiveData<NasaApiStatus>
+    get() = _status
+    
     init {
-
         viewModelScope.launch {
-            var getAsteroids = NasaApi.service.getAsteroids(
-                API_KEY,
-                LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                LocalDate.now().plusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-            )
-            try{
-                val result = getAsteroids.await()
-                Timber.i(result)
-                _asteroids.value = parseAsteroidsJsonResult(JSONObject(result))
-            }catch(exception: Exception){
-                Timber.i("Error at retrieving asteroids:\n${exception.message.toString()}")
-            }
+           getAsteroids()
+        }
+    }
+
+    suspend fun getAsteroids() {
+        var asteroids = NasaApi.service.getAsteroids(
+            API_KEY,
+            LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+            LocalDate.now().plusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        )
+
+        try{
+            val result = asteroids.await()
+            Timber.i(result)
+            _asteroids.postValue(parseAsteroidsJsonResult(JSONObject(result)))
+            _status.postValue(NasaApiStatus.DONE)
+        }catch(exception: Exception){
+            Timber.i("Error at retrieving asteroids:\n${exception.message.toString()}")
+            _status.postValue(NasaApiStatus.ERROR)
         }
     }
 }
