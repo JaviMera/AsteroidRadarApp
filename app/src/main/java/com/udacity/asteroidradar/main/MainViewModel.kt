@@ -13,6 +13,7 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.await
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -34,16 +35,13 @@ class MainViewModel : ViewModel() {
                 LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 LocalDate.now().plusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             )
-
-            getAsteroids.enqueue(object: Callback<String> {
-                override fun onResponse(call: Call<String>, response: Response<String>) {
-                    _asteroids.value = parseAsteroidsJsonResult(JSONObject(response.body().toString()))
-                }
-
-                override fun onFailure(call: Call<String>, t: Throwable) {
-                    Log.i("MainViewModel", "Error at retrieving asteroids:\n${t.message.toString()}")
-                }
-            })
+            try{
+                var result = getAsteroids.await()
+                Log.i("MainViewModel", result)
+                _asteroids.value = parseAsteroidsJsonResult(JSONObject(result))
+            }catch(exception: Exception){
+                Log.i("MainViewModel", "Error at retrieving asteroids:\n${exception.message.toString()}")
+            }
         }
     }
 }
