@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.udacity.asteroidradar.R
@@ -16,7 +17,7 @@ class DetailFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
 
         val application = requireNotNull(activity).application
-        val binding = FragmentDetailBinding.inflate(inflater)
+        val binding = DataBindingUtil.inflate(inflater, R.layout.fragment_detail, container, false) as FragmentDetailBinding
         binding.lifecycleOwner = this
 
         val asteroid = DetailFragmentArgs.fromBundle(requireArguments()).selectedAsteroid
