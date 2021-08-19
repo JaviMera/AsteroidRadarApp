@@ -14,6 +14,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.await
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -36,11 +37,11 @@ class MainViewModel : ViewModel() {
                 LocalDate.now().plusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             )
             try{
-                var result = getAsteroids.await()
-                Log.i("MainViewModel", result)
+                val result = getAsteroids.await()
+                Timber.i(result)
                 _asteroids.value = parseAsteroidsJsonResult(JSONObject(result))
             }catch(exception: Exception){
-                Log.i("MainViewModel", "Error at retrieving asteroids:\n${exception.message.toString()}")
+                Timber.i("Error at retrieving asteroids:\n${exception.message.toString()}")
             }
         }
     }
