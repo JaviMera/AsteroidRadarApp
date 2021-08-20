@@ -11,8 +11,10 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 import retrofit2.await
 import timber.log.Timber
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 class MainViewModel : ViewModel() {
 
@@ -35,10 +37,17 @@ class MainViewModel : ViewModel() {
     }
 
     suspend fun getAsteroids() {
+
+        val calendar = Calendar.getInstance()
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+
+        val calendarFuture = Calendar.getInstance()
+        calendarFuture.add(Calendar.DATE, 7)
+
         var asteroids = NasaApi.service.getAsteroids(
             API_KEY,
-            LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-            LocalDate.now().plusDays(7).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            simpleDateFormat.format(calendar.time),
+            simpleDateFormat.format(calendarFuture.time)
         )
 
         try{
