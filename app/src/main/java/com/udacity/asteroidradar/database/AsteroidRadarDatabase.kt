@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [AsteroidEntity::class], version = 1, exportSchema = false)
+@Database(entities = [AsteroidEntity::class], version = 2, exportSchema = false)
 abstract class AsteroidRadarDatabase : RoomDatabase() {
 
     abstract val asteroidRadarDatabaseDao: AsteroidRadarDatabaseDo
@@ -24,6 +24,7 @@ abstract class AsteroidRadarDatabase : RoomDatabase() {
                         AsteroidRadarDatabase::class.java,
                         "asteroid_radar_database"
                     )
+                        .fallbackToDestructiveMigration()
                         .build()
                 }
 

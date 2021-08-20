@@ -45,7 +45,8 @@ class AsteroidRadarDatabaseTest {
     @Throws(Exception::class)
     suspend fun writeAsteroidAndRead(){
         val asteroid = AsteroidEntity()
-        asteroidRadarDao.insert(asteroid)
+        asteroidRadarDao.insert(listOf(asteroid))
+
         val asteroidFromDb = asteroidRadarDao.getAllAsteroids().value?.get(0)
 
         assertThat(asteroidFromDb, equalTo(asteroid))

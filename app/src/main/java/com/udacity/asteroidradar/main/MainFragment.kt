@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.asteroidradar.R
+import com.udacity.asteroidradar.database.toAsteroids
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +37,7 @@ class MainFragment : Fragment() {
 
         binding.asteroidRecycler.adapter = adapter
 
-        viewModel.asteroids.observe(viewLifecycleOwner, Observer {
+        viewModel.dbAsteroids.observe(viewLifecycleOwner, Observer {
             if(it.any()){
                 adapter.submitList(it)
             }else{

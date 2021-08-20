@@ -1,12 +1,13 @@
 package com.udacity.asteroidradar.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.app.Application
+import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.api.NasaApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
+import com.udacity.asteroidradar.database.AsteroidRadarDatabase
+import com.udacity.asteroidradar.database.toAsteroidEntities
+import com.udacity.asteroidradar.database.toAsteroids
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import retrofit2.await
@@ -16,20 +17,22 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object{
         const val API_KEY = "jXEDVjihcXsoNBIJKUF7w5Pm9MFri2faBV3m05a7"
     }
 
-    private val _asteroids = MutableLiveData<List<Asteroid>>()
-    val asteroids: LiveData<List<Asteroid>>
-    get() = _asteroids
+    private val database = AsteroidRadarDatabase.getInstance(application)
 
     private val _status = MutableLiveData<NasaApiStatus>()
     val status: LiveData<NasaApiStatus>
     get() = _status
-    
+
+    val dbAsteroids = Transformations.map(database.asteroidRadarDatabaseDao.getAllAsteroids()){
+        it.toAsteroids()
+    }
+
     init {
         viewModelScope.launch {
            getAsteroids()
@@ -54,7 +57,8 @@ class MainViewModel : ViewModel() {
             _status.postValue(NasaApiStatus.LOADING)
             val result = asteroids.await()
             Timber.i(result)
-            _asteroids.postValue(parseAsteroidsJsonResult(JSONObject(result)))
+            val asteroidList = parseAsteroidsJsonResult(JSONObject(result))
+            database.asteroidRadarDatabaseDao.insert(asteroidList.toAsteroidEntities())
             _status.postValue(NasaApiStatus.DONE)
         }catch(exception: Exception){
             Timber.i("Error at retrieving asteroids:\n${exception.message.toString()}")

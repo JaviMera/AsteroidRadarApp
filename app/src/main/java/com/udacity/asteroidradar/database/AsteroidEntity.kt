@@ -1,12 +1,17 @@
 package com.udacity.asteroidradar.database
 
+import android.annotation.SuppressLint
+import androidx.core.util.TimeUtils
 import androidx.room.*
+import com.udacity.asteroidradar.Asteroid
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.util.*
 
 @Entity(tableName = "asteroid_table")
 data class AsteroidEntity (
-    @PrimaryKey(autoGenerate = true)
-    var id: Long = 0L,
-    @ColumnInfo(name = "asteroid_id")
+    @PrimaryKey()
     var asteroidId: Long = 0L,
     @ColumnInfo(name = "code_name")
     var codeName: String = "",
@@ -23,3 +28,33 @@ data class AsteroidEntity (
     @ColumnInfo(name = "is_potentially_hazardous")
     var isPotentiallyHazardous: Boolean = false
 )
+
+fun List<Asteroid>.toAsteroidEntities() : List<AsteroidEntity> {
+    return this.map {
+        AsteroidEntity(
+            asteroidId = it.id,
+            codeName = it.codename,
+            absoluteMagnitude = it.absoluteMagnitude,
+            closeApproachDate = SimpleDateFormat("yyyy-MM-dd").parse(it.closeApproachDate)?.time!!,
+            distanceFromEarth = it.distanceFromEarth,
+            estimatedDiameter = it.estimatedDiameter,
+            isPotentiallyHazardous = it.isPotentiallyHazardous,
+            relativeVelocity = it.relativeVelocity
+        )
+    }
+}
+
+fun List<AsteroidEntity>.toAsteroids() : List<Asteroid>{
+    return this.map {
+        Asteroid(
+            id = it.asteroidId,
+            codename = it.codeName,
+            absoluteMagnitude = it.absoluteMagnitude,
+            closeApproachDate = SimpleDateFormat("yyyy-MM-dd").format(it.closeApproachDate),
+            distanceFromEarth = it.distanceFromEarth,
+            estimatedDiameter = it.estimatedDiameter,
+            isPotentiallyHazardous = it.isPotentiallyHazardous,
+            relativeVelocity = it.relativeVelocity
+        )
+    }
+}
