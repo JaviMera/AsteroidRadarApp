@@ -33,6 +33,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val asteroids: LiveData<List<Asteroid>>
     get() = _asteroids
 
+    val dbAsteroids = Transformations.map(database.asteroidRadarDatabaseDao.getAllAsteroids(System.currentTimeMillis())){
+        it.toAsteroids()
+    }
+
+    fun updateStatus(nasaApiStatus: NasaApiStatus){
+        _status.postValue(nasaApiStatus)
+    }
+
     suspend fun getAsteroids() : String {
 
         val calendar = Calendar.getInstance()

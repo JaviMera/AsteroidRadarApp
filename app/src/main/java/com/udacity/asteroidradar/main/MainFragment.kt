@@ -24,6 +24,8 @@ class MainFragment : Fragment() {
         ViewModelProvider(this).get(MainViewModel::class.java)
     }
 
+    private lateinit var asteroidAdapter: AsteroidRecyclerAdapter
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val binding = DataBindingUtil.inflate(inflater, R.layout.fragment_main, container, false) as FragmentMainBinding
@@ -32,16 +34,16 @@ class MainFragment : Fragment() {
 
         binding.viewModel = viewModel
 
-        var adapter = AsteroidRecyclerAdapter(AsteroidRecyclerAdapter.OnClickListener {
+        asteroidAdapter = AsteroidRecyclerAdapter(AsteroidRecyclerAdapter.OnClickListener {
             findNavController().navigate(MainFragmentDirections.actionShowDetail(it))
         })
 
-        binding.asteroidRecycler.adapter = adapter
+        binding.asteroidRecycler.adapter = asteroidAdapter
 
         viewModel.asteroids.observe(viewLifecycleOwner, Observer {
             try {
                 if(it.any()){
-                    adapter.submitList(it)
+                    asteroidAdapter.submitList(it)
                 }else{
                     Toast.makeText(context, "Unable to retrieve asteroids at this time.", Toast.LENGTH_SHORT).show()
                 }
@@ -73,8 +75,24 @@ class MainFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        // Remove observers from dbAsteroids to avoid updating the database while the user
+        // is viewing data from an online request. Otherwise if the worker(not yet implemented)
+        // updates the database, the dbAsteroids will also be updated from the Transformations.
+        viewModel.dbAsteroids.removeObservers(viewLifecycleOwner)
+
         return when(item.itemId){
+            R.id.show_saved_asteroids -> addObserver()
             else -> viewModel.getWeekAsteroids()
         }
+    }
+
+    private fun addObserver(): Boolean {
+
+        viewModel.dbAsteroids.observe(viewLifecycleOwner, Observer {
+            asteroidAdapter.submitList(it)
+        })
+
+        return true
     }
 }
