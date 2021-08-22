@@ -10,12 +10,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.asteroidradar.R
-import com.udacity.asteroidradar.database.toAsteroids
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.lang.Exception
 
 class MainFragment : Fragment() {
@@ -82,12 +80,12 @@ class MainFragment : Fragment() {
         viewModel.dbAsteroids.removeObservers(viewLifecycleOwner)
 
         return when(item.itemId){
-            R.id.show_saved_asteroids -> addObserver()
+            R.id.show_saved_asteroids -> observeAsteroidsFromDatabase()
             else -> viewModel.getWeekAsteroids()
         }
     }
 
-    private fun addObserver(): Boolean {
+    private fun observeAsteroidsFromDatabase(): Boolean {
 
         viewModel.dbAsteroids.observe(viewLifecycleOwner, Observer {
             asteroidAdapter.submitList(it)
