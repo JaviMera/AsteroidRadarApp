@@ -12,6 +12,6 @@ interface AsteroidRadarDatabaseDo {
     @Insert(onConflict = REPLACE)
     suspend fun insert(asteroidEntity: List<AsteroidEntity>)
 
-    @Query("select * from asteroid_table")
-    fun getAllAsteroids() : LiveData<List<AsteroidEntity>>
+    @Query("select * from asteroid_table where close_approach_date >= :today order by close_approach_date")
+    fun getAllAsteroids(today: Long) : LiveData<List<AsteroidEntity>>
 }

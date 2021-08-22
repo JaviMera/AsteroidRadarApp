@@ -29,8 +29,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val status: LiveData<NasaApiStatus>
     get() = _status
 
-    val dbAsteroids = Transformations.map(database.asteroidRadarDatabaseDao.getAllAsteroids()){
-
+    val dbAsteroids = Transformations.map(database.asteroidRadarDatabaseDao.getAllAsteroids(System.currentTimeMillis())){
         it.toAsteroids()
     }
 

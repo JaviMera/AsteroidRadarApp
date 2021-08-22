@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.Exception
 
 class MainFragment : Fragment() {
 
@@ -38,12 +39,16 @@ class MainFragment : Fragment() {
         binding.asteroidRecycler.adapter = adapter
 
         viewModel.dbAsteroids.observe(viewLifecycleOwner, Observer {
-            if(it.any()){
-                viewModel.updateStatus(NasaApiStatus.LOADING)
-                adapter.submitList(it)
-                viewModel.updateStatus(NasaApiStatus.DONE)
-            }else{
-                Toast.makeText(context, "Unable to retrieve asteroids at this time.", Toast.LENGTH_SHORT).show()
+            try {
+                if(it.any()){
+                    viewModel.updateStatus(NasaApiStatus.LOADING)
+                    adapter.submitList(it)
+                    viewModel.updateStatus(NasaApiStatus.DONE)
+                }else{
+                    Toast.makeText(context, "Unable to retrieve asteroids at this time.", Toast.LENGTH_SHORT).show()
+                }
+            }catch(exception: Exception){
+                Toast.makeText(context, exception.message, Toast.LENGTH_SHORT).show()
             }
         })
 
