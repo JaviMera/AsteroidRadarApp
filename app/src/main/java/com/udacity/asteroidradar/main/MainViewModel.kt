@@ -6,15 +6,12 @@ import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.api.NasaApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.AsteroidRadarDatabase
-import com.udacity.asteroidradar.database.toAsteroidEntities
 import com.udacity.asteroidradar.database.toAsteroids
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import retrofit2.await
 import timber.log.Timber
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -66,6 +63,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val result = getAsteroids()
                 Timber.i(result)
                 _asteroids.postValue(parseAsteroidsJsonResult(JSONObject(result)))
+                _status.postValue(NasaApiStatus.DONE)
+
+            }catch(exception: Exception){
+                Timber.i("Error at retrieving asteroids:\n${exception.message.toString()}")
+                _status.postValue(NasaApiStatus.ERROR)
+            }
+        }
+
+        return true
+    }
+
+    fun getTodaysAsteroids(): Boolean {
+        viewModelScope.launch {
+
+            try{
+                _status.postValue(NasaApiStatus.LOADING)
+                val result = getAsteroids()
+                Timber.i(result)
+                val asteroidList = parseAsteroidsJsonResult(JSONObject(result))
+                val formatter = SimpleDateFormat("yyyy-MM-dd")
+                val calendar = Calendar.getInstance()
+                _asteroids.postValue(asteroidList.filter {
+                    it.closeApproachDate == formatter.format(calendar.time)
+                })
                 _status.postValue(NasaApiStatus.DONE)
 
             }catch(exception: Exception){

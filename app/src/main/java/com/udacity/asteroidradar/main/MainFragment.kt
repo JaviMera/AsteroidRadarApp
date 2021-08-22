@@ -81,6 +81,7 @@ class MainFragment : Fragment() {
 
         return when(item.itemId){
             R.id.show_saved_asteroids -> observeAsteroidsFromDatabase()
+            R.id.show_today_asteroids -> viewModel.getTodaysAsteroids()
             else -> viewModel.getWeekAsteroids()
         }
     }
