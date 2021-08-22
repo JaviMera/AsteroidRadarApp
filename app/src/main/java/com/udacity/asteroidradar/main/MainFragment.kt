@@ -39,7 +39,9 @@ class MainFragment : Fragment() {
 
         viewModel.dbAsteroids.observe(viewLifecycleOwner, Observer {
             if(it.any()){
+                viewModel.updateStatus(NasaApiStatus.LOADING)
                 adapter.submitList(it)
+                viewModel.updateStatus(NasaApiStatus.DONE)
             }else{
                 Toast.makeText(context, "Unable to retrieve asteroids at this time.", Toast.LENGTH_SHORT).show()
             }

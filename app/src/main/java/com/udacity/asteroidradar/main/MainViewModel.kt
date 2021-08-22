@@ -30,13 +30,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     get() = _status
 
     val dbAsteroids = Transformations.map(database.asteroidRadarDatabaseDao.getAllAsteroids()){
+
         it.toAsteroids()
     }
 
-    init {
-        viewModelScope.launch {
-           getAsteroids()
-        }
+    fun updateStatus(nasaApiStatus: NasaApiStatus){
+        _status.postValue(nasaApiStatus)
     }
 
     suspend fun getAsteroids() {
