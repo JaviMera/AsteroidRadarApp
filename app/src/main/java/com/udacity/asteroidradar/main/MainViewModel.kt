@@ -29,15 +29,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val status: LiveData<NasaApiStatus>
     get() = _status
 
-    val dbAsteroids = Transformations.map(database.asteroidRadarDatabaseDao.getAllAsteroids(System.currentTimeMillis())){
-        it.toAsteroids()
-    }
+    private val _asteroids = MutableLiveData<List<Asteroid>>()
+    val asteroids: LiveData<List<Asteroid>>
+    get() = _asteroids
 
-    fun updateStatus(nasaApiStatus: NasaApiStatus){
-        _status.postValue(nasaApiStatus)
-    }
-
-    suspend fun getAsteroids() {
+    suspend fun getAsteroids() : String {
 
         val calendar = Calendar.getInstance()
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
@@ -51,16 +47,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             simpleDateFormat.format(calendarFuture.time)
         )
 
-        try{
-            _status.postValue(NasaApiStatus.LOADING)
-            val result = asteroids.await()
-            Timber.i(result)
-            val asteroidList = parseAsteroidsJsonResult(JSONObject(result))
-            database.asteroidRadarDatabaseDao.insert(asteroidList.toAsteroidEntities())
-            _status.postValue(NasaApiStatus.DONE)
-        }catch(exception: Exception){
-            Timber.i("Error at retrieving asteroids:\n${exception.message.toString()}")
-            _status.postValue(NasaApiStatus.ERROR)
+        return asteroids.await()
+    }
+
+    fun getWeekAsteroids(): Boolean {
+        viewModelScope.launch {
+
+            try{
+                _status.postValue(NasaApiStatus.LOADING)
+                val result = getAsteroids()
+                Timber.i(result)
+                _asteroids.postValue(parseAsteroidsJsonResult(JSONObject(result)))
+                _status.postValue(NasaApiStatus.DONE)
+
+            }catch(exception: Exception){
+                Timber.i("Error at retrieving asteroids:\n${exception.message.toString()}")
+                _status.postValue(NasaApiStatus.ERROR)
+            }
         }
+
+        return true
     }
 }

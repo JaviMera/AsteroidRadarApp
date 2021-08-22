@@ -38,12 +38,10 @@ class MainFragment : Fragment() {
 
         binding.asteroidRecycler.adapter = adapter
 
-        viewModel.dbAsteroids.observe(viewLifecycleOwner, Observer {
+        viewModel.asteroids.observe(viewLifecycleOwner, Observer {
             try {
                 if(it.any()){
-                    viewModel.updateStatus(NasaApiStatus.LOADING)
                     adapter.submitList(it)
-                    viewModel.updateStatus(NasaApiStatus.DONE)
                 }else{
                     Toast.makeText(context, "Unable to retrieve asteroids at this time.", Toast.LENGTH_SHORT).show()
                 }
@@ -75,6 +73,8 @@ class MainFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return true
+        return when(item.itemId){
+            else -> viewModel.getWeekAsteroids()
+        }
     }
 }
