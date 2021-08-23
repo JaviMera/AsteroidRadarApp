@@ -22,3 +22,4 @@ data class AsteroidEntity (
     var isPotentiallyHazardous: Boolean = false
 )
 
+
