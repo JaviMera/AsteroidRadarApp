@@ -1,7 +1,6 @@
-package com.udacity.asteroidradar.util
+package com.udacity.asteroidradar.database
 
 import com.udacity.asteroidradar.Asteroid
-import com.udacity.asteroidradar.database.AsteroidEntity
 import java.text.SimpleDateFormat
 
 fun List<Asteroid>.toAsteroidEntities() : List<AsteroidEntity> {
