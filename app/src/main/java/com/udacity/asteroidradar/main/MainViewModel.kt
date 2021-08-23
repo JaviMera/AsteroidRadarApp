@@ -34,8 +34,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         it.toAsteroids()
     }
 
-    fun updateStatus(nasaApiStatus: NasaApiStatus){
-        _status.postValue(nasaApiStatus)
+    init {
+        getWeekAsteroids()
     }
 
     suspend fun getAsteroids() : String {
