@@ -8,6 +8,9 @@
         <entry key="..\:/Users/javie/StudioProjects/AsteroidRadarApp/app/src/main/res/drawable/ic_launcher_background.xml" value="0.26927083333333335" />
         <entry key="..\:/Users/javie/StudioProjects/AsteroidRadarApp/app/src/main/res/drawable/ic_status_normal.xml" value="0.26927083333333335" />
         <entry key="..\:/Users/javie/StudioProjects/AsteroidRadarApp/app/src/main/res/drawable/ic_status_potentially_hazardous.xml" value="0.26927083333333335" />
+        <entry key="..\:/Users/javie/StudioProjects/AsteroidRadarApp/app/src/main/res/drawable/loading_icon.xml" value="0.2859375" />
+        <entry key="..\:/Users/javie/StudioProjects/AsteroidRadarApp/app/src/main/res/drawable/loading_image.xml" value="0.2859375" />
+        <entry key="..\:/Users/javie/StudioProjects/AsteroidRadarApp/app/src/main/res/drawable/loading_image_error.xml" value="0.2859375" />
         <entry key="..\:/Users/javie/StudioProjects/AsteroidRadarApp/app/src/main/res/drawable/placeholder_picture_of_day.xml" value="0.26927083333333335" />
         <entry key="..\:/Users/javie/StudioProjects/AsteroidRadarApp/app/src/main/res/layout/asteroid_list_item.xml" value="0.4" />
         <entry key="..\:/Users/javie/StudioProjects/AsteroidRadarApp/app/src/main/res/layout/fragment_detail.xml" value="0.22239583333333332" />

@@ -3,6 +3,7 @@ package com.udacity.asteroidradar.main
 import android.app.Application
 import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
+import com.udacity.asteroidradar.PictureOfDay
 import com.udacity.asteroidradar.api.NasaApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.AsteroidRadarDatabase
@@ -30,12 +31,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val asteroids: LiveData<List<Asteroid>>
     get() = _asteroids
 
+    private val _pictureOfDay = MutableLiveData<PictureOfDay>()
+    val pictureOfDay: LiveData<PictureOfDay>
+    get() = _pictureOfDay
+
     val dbAsteroids = Transformations.map(database.asteroidRadarDatabaseDao.getAllAsteroids(System.currentTimeMillis())){
         it.toAsteroids()
     }
 
     init {
         getWeekAsteroids()
+
+//        viewModelScope.launch {
+//            var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
+//            _pictureOfDay.value = pictureOfDayRequest.await()
+//            Timber.i(pictureOfDay.toString())
+//        }
     }
 
     suspend fun getAsteroids() : String {
@@ -46,7 +57,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val calendarFuture = Calendar.getInstance()
         calendarFuture.add(Calendar.DATE, 7)
 
-        var asteroids = NasaApi.service.getAsteroids(
+        var asteroids = NasaApi.asteroidsService.getAsteroids(
             API_KEY,
             simpleDateFormat.format(calendar.time),
             simpleDateFormat.format(calendarFuture.time)

@@ -4,7 +4,10 @@ import android.opengl.Visibility
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
+import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.udacity.asteroidradar.R
 
 @BindingAdapter("hazardousIcon")
@@ -21,5 +24,17 @@ fun bindAsteroidRequestProgressBar(progressBar: ProgressBar, nasaApiStatus: Nasa
         NasaApiStatus.ERROR -> progressBar.visibility = View.GONE
         NasaApiStatus.DONE -> progressBar.visibility = View.GONE
         NasaApiStatus.LOADING -> progressBar.visibility = View.VISIBLE
+    }
+}
+
+@BindingAdapter("showPictureOfDay")
+fun bindPictureOfDay(imageView: ImageView, pictureOfDayUrl: String?){
+    pictureOfDayUrl?.let{
+        Glide.with(imageView.context)
+            .load(it)
+            .apply(RequestOptions()
+                .placeholder(R.drawable.loading_image)
+                .error(R.drawable.loading_image_error))
+            .into(imageView)
     }
 }
