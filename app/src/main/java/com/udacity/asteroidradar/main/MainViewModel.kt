@@ -42,11 +42,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     init {
         getWeekAsteroids()
 
-//        viewModelScope.launch {
-//            var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
-//            _pictureOfDay.value = pictureOfDayRequest.await()
-//            Timber.i(pictureOfDay.toString())
-//        }
+        viewModelScope.launch {
+            try{
+                var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
+                _pictureOfDay.value = pictureOfDayRequest.await()
+                Timber.i(pictureOfDay.toString())
+            }catch (exception: Exception){
+                Timber.i("Unable to retrieve picture of day.\n${exception.message}")
+            }
+        }
     }
 
     suspend fun getAsteroids() : String {

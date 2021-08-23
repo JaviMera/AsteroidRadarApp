@@ -10,12 +10,12 @@ android {
     buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.udacity.asteroidradar"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-//        multiDexEnabled true
+
     }
     buildTypes {
         release {
@@ -75,8 +75,6 @@ dependencies {
 
     // Glide
     implementation 'com.github.bumptech.glide:glide:4.11.0'
-
-//    implementation 'com.android.support:multidex:1.0.3'
 
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
