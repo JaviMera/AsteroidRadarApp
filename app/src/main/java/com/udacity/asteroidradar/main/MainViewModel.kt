@@ -6,7 +6,7 @@ import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.api.NasaApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.AsteroidRadarDatabase
-import com.udacity.asteroidradar.database.toAsteroids
+import com.udacity.asteroidradar.util.toAsteroids
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import retrofit2.await
