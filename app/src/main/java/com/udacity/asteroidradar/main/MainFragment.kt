@@ -57,7 +57,7 @@ class MainFragment : Fragment() {
                     .make(requireActivity().findViewById(R.id.constraint_layout), "Unable to retrieve Asteroids", Snackbar.LENGTH_LONG)
                     .setAction("Retry", View.OnClickListener {
                         CoroutineScope(Dispatchers.Default).launch{
-                            viewModel.getAsteroids()
+                            viewModel.getWeekAsteroids()
                         }
                     })
                 snackbar.show()
@@ -66,10 +66,9 @@ class MainFragment : Fragment() {
 
         viewModel.picture.observe(viewLifecycleOwner, Observer {
             if(it == null){
-                Toast.makeText(context, "Unable to get picture from database'", Toast.LENGTH_SHORT).show()
+                viewModel.getPictureOfDay()
             }else{
-                Timber.i(it.toString())
-                Toast.makeText(context, it.title, Toast.LENGTH_SHORT).show()
+                Timber.i("Picture of today retrieved from database:\n${it.toString()}")
             }
         })
 

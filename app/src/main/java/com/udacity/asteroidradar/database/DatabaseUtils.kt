@@ -44,7 +44,8 @@ fun PictureOfDay.toPictureOfDayEntity() : PictureOfDayEntity{
     )
 }
 
-fun PictureOfDayEntity.toPictureOfDay() : PictureOfDay{
+fun PictureOfDayEntity.toPictureOfDay() : PictureOfDay?{
+
     return PictureOfDay(
         date = this.date,
         url = this.imageUrl,

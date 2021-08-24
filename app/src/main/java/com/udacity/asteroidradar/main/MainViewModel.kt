@@ -33,35 +33,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val asteroids: LiveData<List<Asteroid>>
     get() = _asteroids
 
+    private val _currentDate = SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().time)
+
     val dbAsteroids = Transformations.map(database.asteroidRadarDao.getAllAsteroids(System.currentTimeMillis())){
         it.toAsteroids()
     }
 
-    val picture = Transformations.map(database.asteroidPictureOfDayDao.getPictureOfDay()){
-        it.toPictureOfDay()
+    val picture = Transformations.map(database.asteroidPictureOfDayDao.getPictureOfDay(_currentDate)){
+        it?.toPictureOfDay()
     }
 
     init {
         getWeekAsteroids()
-
-//        viewModelScope.launch {
-//            try{
-//                _picture.value = database.asteroidPictureOfDayDao.getPictureOfDay().value
-//                if(pictureFromDb.value != null){
-//                    Timber.i("${pictureFromDb.value!!.title} ${pictureFromDb.value!!.imageUrl}")
-//                }
-//                else{
-//                    Timber.i("Downloading picture")
-//                    var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
-//                    var result = pictureOfDayRequest.await()
-//
-//                    database.asteroidPictureOfDayDao.insert(result.toPictureOfDayEntity())
-//                }
-//
-//            }catch (exception: Exception){
-//                Timber.i("Unable to retrieve picture of day.\n${exception.message}")
-//            }
-//        }
     }
 
     suspend fun getAsteroids() : String {
@@ -105,7 +88,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             try{
                 _status.postValue(NasaApiStatus.LOADING)
                 val result = getAsteroids()
-                Timber.i(result)
                 val asteroidList = parseAsteroidsJsonResult(JSONObject(result))
                 val formatter = SimpleDateFormat("yyyy-MM-dd")
                 val calendar = Calendar.getInstance()
@@ -122,12 +104,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         return true
     }
-//
-//    fun getPictureOfDay() {
-//        viewModelScope.launch {
-//            var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
-//            var result = pictureOfDayRequest.await()
-//            database.asteroidPictureOfDayDao.insert(result.toPictureOfDayEntity())
-//        }
-//    }
+
+    fun getPictureOfDay() {
+        viewModelScope.launch {
+            var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
+            var result = pictureOfDayRequest.await()
+            database.asteroidPictureOfDayDao.insert(result.toPictureOfDayEntity())
+        }
+    }
 }
