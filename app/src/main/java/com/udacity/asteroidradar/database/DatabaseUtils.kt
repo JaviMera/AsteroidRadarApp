@@ -1,6 +1,8 @@
 package com.udacity.asteroidradar.database
 
+import android.graphics.Picture
 import com.udacity.asteroidradar.Asteroid
+import com.udacity.asteroidradar.PictureOfDay
 import java.text.SimpleDateFormat
 
 fun List<Asteroid>.toAsteroidEntities() : List<AsteroidEntity> {
@@ -31,4 +33,22 @@ fun List<AsteroidEntity>.toAsteroids() : List<Asteroid>{
             relativeVelocity = it.relativeVelocity
         )
     }
+}
+
+fun PictureOfDay.toPictureOfDayEntity() : PictureOfDayEntity{
+    return PictureOfDayEntity(
+        date = this.date,
+        title = this.title,
+        mediaType = this.mediaType,
+        imageUrl = this.url
+    )
+}
+
+fun PictureOfDayEntity.toPictureOfDay() : PictureOfDay{
+    return PictureOfDay(
+        date = this.date,
+        url = this.imageUrl,
+        title = this.title,
+        mediaType = this.mediaType
+    )
 }

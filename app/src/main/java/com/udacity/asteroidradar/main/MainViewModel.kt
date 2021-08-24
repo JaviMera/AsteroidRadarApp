@@ -8,6 +8,8 @@ import com.udacity.asteroidradar.api.NasaApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.AsteroidRadarDatabase
 import com.udacity.asteroidradar.database.toAsteroids
+import com.udacity.asteroidradar.database.toPictureOfDay
+import com.udacity.asteroidradar.database.toPictureOfDayEntity
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import retrofit2.await
@@ -31,26 +33,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val asteroids: LiveData<List<Asteroid>>
     get() = _asteroids
 
-    private val _pictureOfDay = MutableLiveData<PictureOfDay>()
-    val pictureOfDay: LiveData<PictureOfDay>
-    get() = _pictureOfDay
-
-    val dbAsteroids = Transformations.map(database.asteroidRadarDatabaseDao.getAllAsteroids(System.currentTimeMillis())){
+    val dbAsteroids = Transformations.map(database.asteroidRadarDao.getAllAsteroids(System.currentTimeMillis())){
         it.toAsteroids()
+    }
+
+    val picture = Transformations.map(database.asteroidPictureOfDayDao.getPictureOfDay()){
+        it.toPictureOfDay()
     }
 
     init {
         getWeekAsteroids()
 
-        viewModelScope.launch {
-            try{
-                var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
-                _pictureOfDay.value = pictureOfDayRequest.await()
-                Timber.i(pictureOfDay.toString())
-            }catch (exception: Exception){
-                Timber.i("Unable to retrieve picture of day.\n${exception.message}")
-            }
-        }
+//        viewModelScope.launch {
+//            try{
+//                _picture.value = database.asteroidPictureOfDayDao.getPictureOfDay().value
+//                if(pictureFromDb.value != null){
+//                    Timber.i("${pictureFromDb.value!!.title} ${pictureFromDb.value!!.imageUrl}")
+//                }
+//                else{
+//                    Timber.i("Downloading picture")
+//                    var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
+//                    var result = pictureOfDayRequest.await()
+//
+//                    database.asteroidPictureOfDayDao.insert(result.toPictureOfDayEntity())
+//                }
+//
+//            }catch (exception: Exception){
+//                Timber.i("Unable to retrieve picture of day.\n${exception.message}")
+//            }
+//        }
     }
 
     suspend fun getAsteroids() : String {
@@ -76,7 +87,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             try{
                 _status.postValue(NasaApiStatus.LOADING)
                 val result = getAsteroids()
-                Timber.i(result)
                 _asteroids.postValue(parseAsteroidsJsonResult(JSONObject(result)))
                 _status.postValue(NasaApiStatus.DONE)
 
@@ -112,4 +122,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         return true
     }
+//
+//    fun getPictureOfDay() {
+//        viewModelScope.launch {
+//            var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
+//            var result = pictureOfDayRequest.await()
+//            database.asteroidPictureOfDayDao.insert(result.toPictureOfDayEntity())
+//        }
+//    }
 }

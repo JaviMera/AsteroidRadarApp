@@ -14,6 +14,7 @@ import com.udacity.asteroidradar.databinding.FragmentMainBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.lang.Exception
 
 class MainFragment : Fragment() {
@@ -60,6 +61,15 @@ class MainFragment : Fragment() {
                         }
                     })
                 snackbar.show()
+            }
+        })
+
+        viewModel.picture.observe(viewLifecycleOwner, Observer {
+            if(it == null){
+                Toast.makeText(context, "Unable to get picture from database'", Toast.LENGTH_SHORT).show()
+            }else{
+                Timber.i(it.toString())
+                Toast.makeText(context, it.title, Toast.LENGTH_SHORT).show()
             }
         })
 
