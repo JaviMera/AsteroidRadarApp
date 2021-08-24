@@ -44,10 +44,10 @@ class MainFragment : Fragment() {
                 if(it.any()){
                     asteroidAdapter.submitList(it)
                 }else{
-                    Toast.makeText(context, "Unable to retrieve asteroids at this time.", Toast.LENGTH_SHORT).show()
+                    Timber.i("Unable to retrieve asteroids at this time.")
                 }
             }catch(exception: Exception){
-                Toast.makeText(context, exception.message, Toast.LENGTH_SHORT).show()
+                Timber.i("Error at retrieving asteroids.\n${exception.message}")
             }
         })
 
