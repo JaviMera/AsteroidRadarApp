@@ -39,12 +39,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         it.toAsteroids()
     }
 
-    val picture = Transformations.map(database.asteroidPictureOfDayDao.getPictureOfDay(_currentDate)){
-        it?.toPictureOfDay()
-    }
+    private val _pictureOfDay = MutableLiveData<PictureOfDay>()
+    val pictureOfDay: LiveData<PictureOfDay>
+    get() = _pictureOfDay
+
+    private val _picture = MutableLiveData<PictureOfDay>()
+    val picture: LiveData<PictureOfDay>
+    get() = _picture
 
     init {
         getWeekAsteroids()
+        getPictureOfDay()
     }
 
     suspend fun getAsteroids() : String {
@@ -105,16 +110,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return true
     }
 
-    fun getPictureOfDay() {
+    private fun getPictureOfDay() {
         viewModelScope.launch {
             try {
                 var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
                 var result = pictureOfDayRequest.await()
                 Timber.i(result.toString())
-                database.asteroidPictureOfDayDao.insert(result.toPictureOfDayEntity())
+                _pictureOfDay.postValue(result)
             }catch(exception: Exception){
                 Timber.i("Unable to download picture of day from nasa.\n${exception.message}")
             }
         }
+    }
+
+    fun savePictureOfDay(pictureOfDay: PictureOfDay) {
+        viewModelScope.launch{
+            database.asteroidPictureOfDayDao.insert(pictureOfDay.toPictureOfDayEntity())
+        }
+    }
+
+    fun showPictureOfDay(pictureOfDay: PictureOfDay){
+        _picture.value = pictureOfDay
     }
 }
