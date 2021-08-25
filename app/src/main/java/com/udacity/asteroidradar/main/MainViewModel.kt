@@ -121,8 +121,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     "video" -> {
                         Timber.i("Picture of today is a video. We can't show a video :(")
                         val pictureOfDay = database.asteroidPictureOfDayDao.getMostRecentPictureOfDay()?.toPictureOfDay()
-                        Timber.i("Picture of day from database: $pictureOfDay")
-                        _picture.postValue(database.asteroidPictureOfDayDao.getMostRecentPictureOfDay()?.toPictureOfDay())
+                        pictureOfDay?.let {
+                            _picture.postValue(pictureOfDay)
+                        }
                     }
                 }
             }catch(exception: Exception){
