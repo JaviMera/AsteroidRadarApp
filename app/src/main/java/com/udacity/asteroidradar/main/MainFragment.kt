@@ -65,22 +65,6 @@ class MainFragment : Fragment() {
             }
         })
 
-        viewModel.pictureOfDay.observe(viewLifecycleOwner, Observer {
-            if(it == null){
-                Timber.i("Unable to retrieve picture of today from Nasa API")
-//                viewModel.getPictureOfDay()
-            }else{
-                Timber.i("Picture of today retrieved from Nasa API:\n${it}")
-                when(it.mediaType){
-                    "image" -> {
-                        viewModel.savePictureOfDay(it)
-                        viewModel.showPictureOfDay(it)
-                    }
-                    "video" -> Timber.i("Picture of today is a video. We can't show a video :(")
-                }
-            }
-        })
-
         setHasOptionsMenu(true)
         return binding.root
     }
