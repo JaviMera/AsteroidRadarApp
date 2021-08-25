@@ -17,7 +17,13 @@ class MainActivity : AppCompatActivity() {
             Timber.plant(Timber.DebugTree())
         }
 
+        val constraints = Constraints.Builder()
+            .setRequiresCharging(true)
+            .setRequiredNetworkType(NetworkType.UNMETERED)
+            .build()
+
         val asteroidsWorkerRequest = PeriodicWorkRequestBuilder<SaveAsteroidsWorker>(1, TimeUnit.DAYS)
+            .setConstraints(constraints)
             .build()
 
         WorkManager

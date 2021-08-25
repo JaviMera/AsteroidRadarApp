@@ -47,6 +47,7 @@ class SaveAsteroidsWorker(appContext: Context, workerParams: WorkerParameters) :
             return Result.success()
         }catch (exception: Exception){
 
+            Timber.i(exception.message)
             return Result.failure()
         }
     }
