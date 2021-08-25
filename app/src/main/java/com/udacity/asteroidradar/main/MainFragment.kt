@@ -66,6 +66,7 @@ class MainFragment : Fragment() {
 
         viewModel.picture.observe(viewLifecycleOwner, Observer {
             if(it == null){
+                Timber.i("Picture of today retrieved from internet:\n${it.toString()}")
                 viewModel.getPictureOfDay()
             }else{
                 Timber.i("Picture of today retrieved from database:\n${it.toString()}")

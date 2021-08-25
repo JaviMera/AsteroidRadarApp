@@ -35,7 +35,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _currentDate = SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().time)
 
-    val dbAsteroids = Transformations.map(database.asteroidRadarDao.getAllAsteroids(System.currentTimeMillis())){
+    val dbAsteroids = Transformations.map(database.asteroidRadarDao.getAllAsteroids(SimpleDateFormat("yyyy-MM-dd").parse(_currentDate).time)){
         it.toAsteroids()
     }
 
@@ -107,9 +107,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getPictureOfDay() {
         viewModelScope.launch {
-            var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
-            var result = pictureOfDayRequest.await()
-            database.asteroidPictureOfDayDao.insert(result.toPictureOfDayEntity())
+            try {
+                var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
+                var result = pictureOfDayRequest.await()
+                Timber.i(result.toString())
+                database.asteroidPictureOfDayDao.insert(result.toPictureOfDayEntity())
+            }catch(exception: Exception){
+                Timber.i("Unable to download picture of day from nasa.\n${exception.message}")
+            }
         }
     }
 }

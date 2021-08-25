@@ -2,11 +2,10 @@ package com.udacity.asteroidradar
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.work.CoroutineWorker
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.work.*
 import com.udacity.asteroidradar.work.SaveAsteroidsWorker
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,11 +17,15 @@ class MainActivity : AppCompatActivity() {
             Timber.plant(Timber.DebugTree())
         }
 
-        val asteroidsWorkerRequest = OneTimeWorkRequestBuilder<SaveAsteroidsWorker>()
+        val asteroidsWorkerRequest = PeriodicWorkRequestBuilder<SaveAsteroidsWorker>(1, TimeUnit.DAYS)
             .build()
 
         WorkManager
             .getInstance()
-            .enqueue(asteroidsWorkerRequest)
+            .enqueueUniquePeriodicWork(
+                SaveAsteroidsWorker.WORKER_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                asteroidsWorkerRequest
+            )
     }
 }

@@ -17,6 +17,10 @@ import java.util.*
 class SaveAsteroidsWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams){
 
+    companion object{
+        const val WORKER_NAME = "SaveAsteroidsWorker"
+    }
+
     override suspend fun doWork(): Result {
         try{
             val calendar = Calendar.getInstance()
@@ -24,6 +28,10 @@ class SaveAsteroidsWorker(appContext: Context, workerParams: WorkerParameters) :
 
             val calendarFuture = Calendar.getInstance()
             calendarFuture.add(Calendar.DATE, 7)
+
+            Timber.i(simpleDateFormat.format(calendar.time).toString())
+            Timber.i(simpleDateFormat.format(calendarFuture.time).toString())
+
             val asteroidsRequest = NasaApi.asteroidsService.getAsteroids(
                 MainViewModel.API_KEY,
                 simpleDateFormat.format(calendar.time),
@@ -32,14 +40,13 @@ class SaveAsteroidsWorker(appContext: Context, workerParams: WorkerParameters) :
 
             val result = asteroidsRequest.await()
             val asteroids = parseAsteroidsJsonResult(JSONObject(result))
+
             val asteroidsDao = AsteroidRadarDatabase.getInstance(applicationContext).asteroidRadarDao
             asteroidsDao.insert(asteroids.toAsteroidEntities())
 
-            Timber.i("Saved ${asteroids.size.toString()} to the database.")
             return Result.success()
         }catch (exception: Exception){
 
-            Timber.i("Unable to save asteroids from worker:\n${exception.message}")
             return Result.failure()
         }
     }
