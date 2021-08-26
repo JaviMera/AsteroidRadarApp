@@ -3,6 +3,7 @@ package com.udacity.asteroidradar.main
 import android.app.Application
 import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
+import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.PictureOfDay
 import com.udacity.asteroidradar.api.NasaApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
@@ -33,9 +34,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val asteroids: LiveData<List<Asteroid>>
     get() = _asteroids
 
-    private val _currentDate = SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().time)
-
-    val dbAsteroids = Transformations.map(database.asteroidRadarDao.getAllAsteroids(SimpleDateFormat("yyyy-MM-dd").parse(_currentDate).time)){
+    val dbAsteroids = Transformations.map(database.asteroidRadarDao.getAllAsteroids(getCurrentDateLong())){
         it.toAsteroids()
     }
 
@@ -48,18 +47,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         getPictureOfDay()
     }
 
-    suspend fun getAsteroids() : String {
-
+    private fun getCurrentDateString() : String {
         val calendar = Calendar.getInstance()
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        return SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT).format(calendar.time)
+    }
 
-        val calendarFuture = Calendar.getInstance()
-        calendarFuture.add(Calendar.DATE, 7)
+    private fun getCurrentDateLong() : Long {
+        val currentDate = getCurrentDateString()
+        return SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT).parse(currentDate).time
+    }
+
+    private fun getFutureDateString(days: Int) : String {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DATE, days)
+        return SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT).format(calendar.time)
+    }
+
+    suspend fun getAsteroids() : String {
 
         var asteroids = NasaApi.asteroidsService.getAsteroids(
             API_KEY,
-            simpleDateFormat.format(calendar.time),
-            simpleDateFormat.format(calendarFuture.time)
+            getCurrentDateString(),
+            getFutureDateString(7)
         )
 
         return asteroids.await()
@@ -90,7 +99,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _status.postValue(NasaApiStatus.LOADING)
                 val result = getAsteroids()
                 val asteroidList = parseAsteroidsJsonResult(JSONObject(result))
-                val formatter = SimpleDateFormat("yyyy-MM-dd")
+                val formatter = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT)
                 val calendar = Calendar.getInstance()
                 _asteroids.postValue(asteroidList.filter {
                     it.closeApproachDate == formatter.format(calendar.time)

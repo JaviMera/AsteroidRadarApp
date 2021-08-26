@@ -1,8 +1,10 @@
 package com.udacity.asteroidradar.work
 
 import android.content.Context
+import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.api.NasaApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.AsteroidRadarDatabase
@@ -24,7 +26,7 @@ class SaveAsteroidsWorker(appContext: Context, workerParams: WorkerParameters) :
     override suspend fun doWork(): Result {
         try{
             val calendar = Calendar.getInstance()
-            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+            val simpleDateFormat = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT)
 
             val calendarFuture = Calendar.getInstance()
             calendarFuture.add(Calendar.DATE, 7)
