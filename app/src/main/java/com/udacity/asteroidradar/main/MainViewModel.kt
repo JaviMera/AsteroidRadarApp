@@ -118,20 +118,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun getPictureOfDay() {
         viewModelScope.launch {
             try {
-                var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
-                var result = pictureOfDayRequest.await()
-                Timber.i(result.toString())
+                val pictureOfDay = database.asteroidPictureOfDayDao.getPictureOfDay(getCurrentDateString())
+                if(pictureOfDay != null){
+                    Timber.i("Getting image from database.\n${pictureOfDay}")
+                    _picture.postValue(pictureOfDay.toPictureOfDay())
+                }else{
+                    var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
+                    var result = pictureOfDayRequest.await()
+                    Timber.i(result.toString())
 
-                when(result.mediaType){
-                    "image" -> {
-                        database.asteroidPictureOfDayDao.insert(result.toPictureOfDayEntity())
-                        _picture.postValue(result)
-                    }
-                    "video" -> {
-                        Timber.i("Picture of today is a video. We can't show a video :(")
-                        val pictureOfDay = database.asteroidPictureOfDayDao.getMostRecentPictureOfDay()?.toPictureOfDay()
-                        pictureOfDay?.let {
-                            _picture.postValue(pictureOfDay)
+                    when(result.mediaType){
+                        "image" -> {
+                            database.asteroidPictureOfDayDao.insert(result.toPictureOfDayEntity())
+                            _picture.postValue(result)
+                        }
+                        "video" -> {
+                            Timber.i("Picture of today is a video. We can't show a video :(")
+                            val mostRecentPictureFromDb = database.asteroidPictureOfDayDao.getMostRecentPictureOfDay()?.toPictureOfDay()
+                            mostRecentPictureFromDb?.let {
+                                _picture.postValue(mostRecentPictureFromDb)
+                            }
                         }
                     }
                 }

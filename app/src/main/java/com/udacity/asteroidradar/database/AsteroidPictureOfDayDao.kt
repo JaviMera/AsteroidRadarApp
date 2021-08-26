@@ -11,7 +11,7 @@ interface AsteroidPictureOfDayDao{
     suspend fun insert(pictureOfDayEntity: PictureOfDayEntity)
 
     @Query("select * from asteroid_picture_of_day_table where date = :today limit 1")
-    fun getPictureOfDay(today: String) : LiveData<PictureOfDayEntity>
+    suspend fun getPictureOfDay(today: String) : PictureOfDayEntity?
 
     @Query("select * from asteroid_picture_of_day_table")
     suspend fun getAllPicturesOfDay() : List<PictureOfDayEntity>
