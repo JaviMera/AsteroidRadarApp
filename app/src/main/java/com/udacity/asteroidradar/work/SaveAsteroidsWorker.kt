@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.udacity.asteroidradar.BuildConfig
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.api.AsteroidsDate
 import com.udacity.asteroidradar.api.NasaApi
@@ -36,7 +37,7 @@ class SaveAsteroidsWorker(appContext: Context, workerParams: WorkerParameters) :
             val asteroidsDate = AsteroidsDate(Constants.API_QUERY_DATE_FORMAT)
 
             val asteroidsRequest = NasaApi.asteroidsService.getAsteroids(
-                MainViewModel.API_KEY,
+                BuildConfig.nasa_api_key,
                 asteroidsDate.getCurrentDateString(),
                 asteroidsDate.getFutureDateString(7)
             )

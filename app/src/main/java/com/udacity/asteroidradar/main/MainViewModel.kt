@@ -3,6 +3,7 @@ package com.udacity.asteroidradar.main
 import android.app.Application
 import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
+import com.udacity.asteroidradar.BuildConfig
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.PictureOfDay
 import com.udacity.asteroidradar.api.AsteroidsDate
@@ -17,10 +18,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-
-    companion object{
-        const val API_KEY = "jXEDVjihcXsoNBIJKUF7w5Pm9MFri2faBV3m05a7"
-    }
 
     private val database = AsteroidRadarDatabase.getInstance(application)
     private val asteroidsDate:AsteroidsDate by lazy { AsteroidsDate(Constants.API_QUERY_DATE_FORMAT) }
@@ -48,7 +45,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     suspend fun getAsteroids() : String {
 
         var asteroids = NasaApi.asteroidsService.getAsteroids(
-            API_KEY,
+            BuildConfig.nasa_api_key,
             asteroidsDate.getCurrentDateString(),
             asteroidsDate.getFutureDateString(7)
         )
@@ -105,7 +102,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     Timber.i("Getting image from database.\n${pictureOfDay}")
                     _picture.postValue(pictureOfDay.toPictureOfDay())
                 }else{
-                    var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(API_KEY)
+                    var pictureOfDayRequest = NasaApi.pictureOfDayService.getPictureOfTheDay(BuildConfig.nasa_api_key)
                     var result = pictureOfDayRequest.await()
                     Timber.i(result.toString())
 
