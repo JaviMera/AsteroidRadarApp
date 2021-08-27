@@ -5,9 +5,11 @@ import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.udacity.asteroidradar.Constants
+import com.udacity.asteroidradar.api.AsteroidsDate
 import com.udacity.asteroidradar.api.NasaApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.AsteroidRadarDatabase
+import com.udacity.asteroidradar.database.AsteroidsRepository
 import com.udacity.asteroidradar.database.toAsteroidEntities
 import com.udacity.asteroidradar.main.MainViewModel
 import org.json.JSONObject
@@ -23,28 +25,25 @@ class SaveAsteroidsWorker(appContext: Context, workerParams: WorkerParameters) :
         const val WORKER_NAME = "SaveAsteroidsWorker"
     }
 
+    private val asteroidsRepository: AsteroidsRepository by lazy {
+        AsteroidsRepository(
+            AsteroidRadarDatabase.getInstance(applicationContext),
+            AsteroidsDate(Constants.API_QUERY_DATE_FORMAT)
+        ) }
+
     override suspend fun doWork(): Result {
         try{
-            val calendar = Calendar.getInstance()
-            val simpleDateFormat = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT)
-
-            val calendarFuture = Calendar.getInstance()
-            calendarFuture.add(Calendar.DATE, 7)
-
-            Timber.i(simpleDateFormat.format(calendar.time).toString())
-            Timber.i(simpleDateFormat.format(calendarFuture.time).toString())
+            val asteroidsDate = AsteroidsDate(Constants.API_QUERY_DATE_FORMAT)
 
             val asteroidsRequest = NasaApi.asteroidsService.getAsteroids(
                 MainViewModel.API_KEY,
-                simpleDateFormat.format(calendar.time),
-                simpleDateFormat.format(calendarFuture.time)
+                asteroidsDate.getCurrentDateString(),
+                asteroidsDate.getFutureDateString(7)
             )
 
             val result = asteroidsRequest.await()
             val asteroids = parseAsteroidsJsonResult(JSONObject(result))
-
-            val asteroidsDao = AsteroidRadarDatabase.getInstance(applicationContext).asteroidRadarDao
-            asteroidsDao.insert(asteroids.toAsteroidEntities())
+            asteroidsRepository.insertAsteroids(asteroids.toAsteroidEntities())
 
             return Result.success()
         }catch (exception: Exception){

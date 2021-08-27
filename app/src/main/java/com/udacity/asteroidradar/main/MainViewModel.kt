@@ -5,12 +5,10 @@ import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.PictureOfDay
+import com.udacity.asteroidradar.api.AsteroidsDate
 import com.udacity.asteroidradar.api.NasaApi
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
-import com.udacity.asteroidradar.database.AsteroidRadarDatabase
-import com.udacity.asteroidradar.database.toAsteroids
-import com.udacity.asteroidradar.database.toPictureOfDay
-import com.udacity.asteroidradar.database.toPictureOfDayEntity
+import com.udacity.asteroidradar.database.*
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import retrofit2.await
@@ -26,6 +24,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database = AsteroidRadarDatabase.getInstance(application)
 
+    private val asteroidsDate:AsteroidsDate by lazy { AsteroidsDate(Constants.API_QUERY_DATE_FORMAT) }
+
+    private val asteroidsRepository = AsteroidsRepository(database, asteroidsDate)
+
     private val _status = MutableLiveData<NasaApiStatus>()
     val status: LiveData<NasaApiStatus>
     get() = _status
@@ -34,9 +36,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val asteroids: LiveData<List<Asteroid>>
     get() = _asteroids
 
-    val dbAsteroids = Transformations.map(database.asteroidRadarDao.getAllAsteroids(getCurrentDateLong())){
-        it.toAsteroids()
-    }
+    val dbAsteroids = asteroidsRepository.asteroids
 
     private val _picture = MutableLiveData<PictureOfDay>()
     val picture: LiveData<PictureOfDay>
@@ -47,28 +47,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         getPictureOfDay()
     }
 
-    private fun getCurrentDateString() : String {
-        val calendar = Calendar.getInstance()
-        return SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT).format(calendar.time)
-    }
-
-    private fun getCurrentDateLong() : Long {
-        val currentDate = getCurrentDateString()
-        return SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT).parse(currentDate).time
-    }
-
-    private fun getFutureDateString(days: Int) : String {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DATE, days)
-        return SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT).format(calendar.time)
-    }
-
     suspend fun getAsteroids() : String {
 
         var asteroids = NasaApi.asteroidsService.getAsteroids(
             API_KEY,
-            getCurrentDateString(),
-            getFutureDateString(7)
+            asteroidsDate.getCurrentDateString(),
+            asteroidsDate.getFutureDateString(7)
         )
 
         return asteroids.await()
@@ -118,7 +102,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun getPictureOfDay() {
         viewModelScope.launch {
             try {
-                val pictureOfDay = database.asteroidPictureOfDayDao.getPictureOfDay(getCurrentDateString())
+                val pictureOfDay = database.asteroidPictureOfDayDao.getPictureOfDay(asteroidsDate.getCurrentDateString())
                 if(pictureOfDay != null){
                     Timber.i("Getting image from database.\n${pictureOfDay}")
                     _picture.postValue(pictureOfDay.toPictureOfDay())
