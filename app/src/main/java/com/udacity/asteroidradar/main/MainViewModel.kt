@@ -23,9 +23,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private val database = AsteroidRadarDatabase.getInstance(application)
-
     private val asteroidsDate:AsteroidsDate by lazy { AsteroidsDate(Constants.API_QUERY_DATE_FORMAT) }
-
     private val asteroidsRepository = AsteroidsRepository(database, asteroidsDate)
 
     private val _status = MutableLiveData<NasaApiStatus>()
@@ -102,7 +100,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun getPictureOfDay() {
         viewModelScope.launch {
             try {
-                val pictureOfDay = database.asteroidPictureOfDayDao.getPictureOfDay(asteroidsDate.getCurrentDateString())
+                val pictureOfDay = asteroidsRepository.getPictureOfDay(asteroidsDate.getCurrentDateString())
                 if(pictureOfDay != null){
                     Timber.i("Getting image from database.\n${pictureOfDay}")
                     _picture.postValue(pictureOfDay.toPictureOfDay())
@@ -113,14 +111,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                     when(result.mediaType){
                         "image" -> {
-                            database.asteroidPictureOfDayDao.insert(result.toPictureOfDayEntity())
+                            asteroidsRepository.insertPictureOfDay(result.toPictureOfDayEntity())
                             _picture.postValue(result)
                         }
                         "video" -> {
                             Timber.i("Picture of today is a video. We can't show a video :(")
-                            val mostRecentPictureFromDb = database.asteroidPictureOfDayDao.getMostRecentPictureOfDay()?.toPictureOfDay()
+                            val mostRecentPictureFromDb = asteroidsRepository.getMostRecentPictureOfDay()
                             mostRecentPictureFromDb?.let {
-                                _picture.postValue(mostRecentPictureFromDb)
+                                _picture.postValue(mostRecentPictureFromDb.toPictureOfDay())
                             }
                         }
                     }
